@@ -1,0 +1,8 @@
+{
+  "name": "Remix THABAT - Autonomous Road Health \u0026 Spectral Inspection Platform",
+  "description": "Operational highway network intelligence using hyperspectral remote sensing, THABAT structural scores, spectral evidence diagnostics, and prioritized inspection dispatch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-deep-teal: #0D3B45;
+  --color-teal: #2E6F6E;
+  --color-sand: #D4B483;
+  --color-light-sand: #F5F1E8;
+  --color-charcoal: #1E1E1E;
+}
+
+/* iOS-style crisp light aesthetic custom styles */
+body {
+  background-color: #F8F9FA;
+  color: #1E1E1E;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle iOS card shadows */
+.ios-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 3px 0 rgba(13, 59, 69, 0.03), 0 6px 16px -4px rgba(13, 59, 69, 0.04);
+  border-radius: 1.25rem; /* 20px */
+}
+
+.ios-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ios-card-hover:hover {
+  box-shadow: 0 8px 24px -6px rgba(13, 59, 69, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  border-color: rgba(46, 111, 110, 0.25);
+  transform: translateY(-1px);
+}
+
+/* iOS Segmented Control Pill Container */
+.ios-segmented {
+  background-color: rgba(241, 245, 249, 0.9);
+  padding: 0.25rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Clean, unobtrusive scrollbar for light theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.7);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
