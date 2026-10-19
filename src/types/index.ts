@@ -1,7 +1,7 @@
 export type SegmentStatus = 'Normal' | 'Watch' | 'Inspect' | 'High Priority';
 
-export type ScreeningPriority = 'Higher Priority' | 'Moderate' | 'Lower Priority';
-export type SupportQuality = 'High support' | 'Moderate support' | 'LOW SUPPORT' | 'Not yet validated';
+export type ScreeningPriority = 'HIGHER PRIORITY' | 'MODERATE' | 'LOWER PRIORITY' | 'Higher Priority' | 'Moderate' | 'Lower Priority';
+export type SupportQuality = 'HIGH SUPPORT' | 'LOW SUPPORT' | 'High support' | 'Moderate support' | 'LOW SUPPORT' | 'Not yet validated';
 
 export type DefectType = 
   | 'Subsurface Moisture Ingress'
@@ -12,9 +12,9 @@ export type DefectType =
   | 'None (Optimal)';
 
 export interface SpectralPoint {
-  wavelength: number; // in nanometers (nm), e.g. 400 to 2450 nm
-  baselineReflectance: number; // 0 to 1
-  currentReflectance: number; // 0 to 1
+  wavelength: number;
+  baselineReflectance: number;
+  currentReflectance: number;
   flaggedAnomaly?: boolean;
   featureLabel?: string;
 }
@@ -26,22 +26,39 @@ export interface TrendPoint {
   projectedWithIntervention?: number;
 }
 
-// Official Screening Segment for AOI-A and AOI-B
+// Official Screening Segment for AOI-A and AOI-B based on uploaded CSVs
 export interface ScreeningSegment {
   id: string; // e.g. 'A-005', 'B-002'
   code: string; // e.g. 'A-005'
   aoiId: 'AOI-A' | 'AOI-B';
-  aoiName: string; // 'Saih Al Salam Street / D42' or 'Fujairah Road Study Area'
+  aoiName: string; // 'Saih Al Salam Street / D42' or 'Fujairah study area'
   roadName: string;
-  medianLST: number; // °C
-  tempRange: number; // °C
-  validPixels: number; // count of valid thermal pixels
+  // Raw CSV values
+  tMin: number;
+  tMedian: number;
+  tMax: number;
+  tRange: number;
+  validPixelCount: number;
+  zMedian: number;
+  zRange: number;
+  positiveThermalAnomaly: number;
+  spreadAnomaly: number;
+  priorityScore: number;
+  supportFlag: 'HIGH SUPPORT' | 'LOW SUPPORT';
+  screeningFlag: 'HIGHER PRIORITY' | 'MODERATE' | 'LOWER PRIORITY';
+  // Explanations
+  whyFlagged: string;
+  recommendedAction: string;
+  scientificNote: string;
+  // Aliases for compatibility
+  medianLST: number;
+  tempRange: number;
+  validPixels: number;
   screeningPriority: ScreeningPriority;
   supportQuality: SupportQuality;
   explanation: string;
   limitations: string;
   sentinelEvidence: string;
-  recommendedAction: string;
   rank: number;
   coordinates: {
     lat: number;
@@ -60,11 +77,11 @@ export interface RoadSegment {
   lanes: number;
   pavementType: 'Stone Mastic Asphalt' | 'Dense Bituminous Macadam' | 'Polymer Modified Asphalt';
   status: SegmentStatus;
-  thabatScore: number; // 0 to 100
+  thabatScore: number;
   previousScore: number;
   primaryDefect: DefectType;
   defectDepthCm: number;
-  urgencyRank: number; // 1 = highest
+  urgencyRank: number;
   lastScanDate: string;
   revisitCycleDays: number;
   coordinates: {
@@ -73,10 +90,10 @@ export interface RoadSegment {
     path: Array<[number, number]>;
   };
   scoreBreakdown: {
-    bitumenHealth: number; // 0-100
-    subgradeMoistureIndex: number; // 0-100
-    voidSusceptibility: number; // 0-100
-    structuralFatigueIndex: number; // 0-100
+    bitumenHealth: number;
+    subgradeMoistureIndex: number;
+    voidSusceptibility: number;
+    structuralFatigueIndex: number;
   };
   recommendation: {
     action: string;
@@ -97,6 +114,8 @@ export interface RoadSegment {
   validPixels?: number;
   screeningPriority?: ScreeningPriority;
   supportQuality?: SupportQuality;
+  whyFlagged?: string;
+  priorityScore?: number;
 }
 
 export interface InspectionQueueItem {
@@ -105,7 +124,7 @@ export interface InspectionQueueItem {
   segmentCode: string;
   roadName: string;
   corridor: string;
-  urgencyScore: number; // 0 - 100
+  urgencyScore: number;
   status: SegmentStatus;
   priorityRank: number;
   detectedDefect: DefectType;
@@ -118,6 +137,8 @@ export interface InspectionQueueItem {
   screeningPriority?: ScreeningPriority;
   supportQuality?: SupportQuality;
   explanation?: string;
+  whyFlagged?: string;
+  priorityScore?: number;
 }
 
 export interface CompetitorComparison {
@@ -140,14 +161,20 @@ export interface CustomerPersona {
   budgetCycle: string;
 }
 
+// 8 Primary Sections according to Information Architecture
 export type NavTab = 
-  | 'dashboard' 
+  | 'overview'
   | 'study-areas' 
-  | 'segments' 
-  | 'thermal' 
+  | 'thermal'
+  | 'multispectral'
+  | 'queue'
   | 'evidence' 
-  | 'results' 
-  | 'about';
+  | 'method'
+  | 'about'
+  // Legacy aliases for backward compatibility
+  | 'dashboard'
+  | 'segments'
+  | 'results';
 
 // Keep DeliverableMode backward compatible with previous views
-export type DeliverableMode = NavTab | 'wireframes' | 'v1' | 'v2' | 'queue' | 'commercial';
+export type DeliverableMode = NavTab | 'wireframes' | 'v1' | 'v2' | 'commercial';

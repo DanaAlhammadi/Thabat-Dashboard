@@ -1,0 +1,99 @@
+{
+  "type": "FeatureCollection",
+  "name": "AOI_B_Fujairah_segments",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "B-001",
+        "aoi_id": "AOI-B",
+        "road_name": "Fujairah Arterial Roadway — Section 1",
+        "t_median": 24.31,
+        "t_range": 0.44,
+        "valid_pixel_count": 2,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "LOW SUPPORT",
+        "priority_score": 0.449,
+        "why_flagged": "Only 2 valid pixels available in current ArcGIS Pro extraction."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [56.2670, 25.1150],
+          [56.2720, 25.1200],
+          [56.2790, 25.1260]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "B-002",
+        "aoi_id": "AOI-B",
+        "road_name": "Fujairah Arterial Roadway — Section 2",
+        "t_median": 24.95,
+        "t_range": 0.46,
+        "valid_pixel_count": 3,
+        "screening_flag": "MODERATE",
+        "support_flag": "LOW SUPPORT",
+        "priority_score": 2.279,
+        "why_flagged": "Highest relative thermal-screening result within AOI-B, but only 3 valid thermal pixels are represented."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [56.2790, 25.1260],
+          [56.2840, 25.1320],
+          [56.2900, 25.1380]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "B-003",
+        "aoi_id": "AOI-B",
+        "road_name": "Fujairah Arterial Roadway — Section 3",
+        "t_median": 24.25,
+        "t_range": 0.32,
+        "valid_pixel_count": 3,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "LOW SUPPORT",
+        "priority_score": 0.0,
+        "why_flagged": "Baseline thermal profile; preliminary screening evidence with only 3 valid pixels."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [56.3010, 25.1460],
+          [56.3050, 25.1500],
+          [56.3110, 25.1550]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "B-004",
+        "aoi_id": "AOI-B",
+        "road_name": "Fujairah Arterial Roadway — Section 4",
+        "t_median": 24.69,
+        "t_range": 0.40,
+        "valid_pixel_count": 3,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "LOW SUPPORT",
+        "priority_score": 0.583,
+        "why_flagged": "Minor thermal variance above AOI-B baseline; restricted to 3 valid pixels."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [56.2900, 25.1380],
+          [56.2950, 25.1410],
+          [56.3010, 25.1460]
+        ]
+      }
+    }
+  ]
+}

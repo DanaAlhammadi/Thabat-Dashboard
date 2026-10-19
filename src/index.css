@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
@@ -61,4 +62,35 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.7);
+}
+
+/* Clean neutral Apple Maps / GIS basemap styling (No API Key Required) */
+.thabat-clean-tiles {
+  filter: grayscale(88%) brightness(102%) contrast(96%);
+}
+
+/* Leaflet scale bar styling to match THABAT iOS style */
+.leaflet-control-scale-line {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1.5px solid rgba(13, 59, 69, 0.35) !important;
+  border-top: none !important;
+  color: #0D3B45 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 2px 6px !important;
+  border-radius: 0 0 4px 4px !important;
+  box-shadow: 0 2px 6px rgba(13, 59, 69, 0.08) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.88) !important;
+  font-size: 9px !important;
+  color: #64748B !important;
+  padding: 2px 8px !important;
+  border-top-left-radius: 8px !important;
+}
+.leaflet-control-attribution a {
+  color: #2E6F6E !important;
+  text-decoration: none !important;
 }

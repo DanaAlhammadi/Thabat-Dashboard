@@ -64,9 +64,13 @@ export const JudgePitchModal: React.FC<JudgePitchModalProps> = ({ isOpen, onClos
       >
         {/* Top Header */}
         <div className="px-6 py-4 bg-[#F8F9FA] border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-[#0D3B45] text-white">
-              <Award className="w-5 h-5 text-[#D4B483]" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white p-0.5 border border-slate-200/90 shadow-xs flex items-center justify-center shrink-0">
+              <img 
+                src="/assets/aistudio/image_724da27a.png" 
+                alt="THABAT Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h3 className="text-base font-bold text-[#0D3B45]">THABAT Competition Pitch Dossier</h3>

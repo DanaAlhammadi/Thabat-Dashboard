@@ -17,12 +17,12 @@ import { Header } from './components/Header';
 import { DashboardHome } from './components/DashboardHome';
 import { StudyAreasView } from './components/StudyAreasView';
 import { ThermalScreeningView } from './components/ThermalScreeningView';
-import { EnvironmentalEvidenceView } from './components/EnvironmentalEvidenceView';
+import { MultispectralView } from './components/MultispectralView';
 import { ResultsQueueView } from './components/ResultsQueueView';
+import { EnvironmentalEvidenceView } from './components/EnvironmentalEvidenceView';
 import { ValidationRoadmapView } from './components/ValidationRoadmapView';
-import { NetworkMap } from './components/NetworkMap';
+import { AboutView } from './components/AboutView';
 import { DashboardV2View } from './components/DashboardV2View';
-import { InspectionQueue } from './components/InspectionQueue';
 import { WireframeView } from './components/WireframeView';
 import { MarketResearchView } from './components/MarketResearchView';
 import { SegmentDetailModal } from './components/SegmentDetailModal';
@@ -34,16 +34,16 @@ import {
   MapPin, 
   Layers, 
   Flame, 
-  Activity, 
   BookOpen, 
   Home,
+  Eye,
   FileCode,
   ShieldCheck,
   Send
 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
+  const [currentTab, setCurrentTab] = useState<NavTab>('overview');
   const [legacyMode, setLegacyMode] = useState<DeliverableMode | null>(null);
 
   const [segments, setSegments] = useState<RoadSegment[]>(ROAD_SEGMENTS);
@@ -69,7 +69,6 @@ export default function App() {
     if (full) {
       setSelectedSegment(full);
     } else {
-      // Fallback synthesizer
       const fallback: RoadSegment = {
         id: `seg-${screeningSeg.code}`,
         code: screeningSeg.code,
@@ -79,8 +78,8 @@ export default function App() {
         lengthKm: 2.0,
         lanes: 4,
         pavementType: 'Stone Mastic Asphalt',
-        status: screeningSeg.screeningPriority === 'Higher Priority' ? 'High Priority' : 'Watch',
-        thabatScore: screeningSeg.screeningPriority === 'Higher Priority' ? 55 : 80,
+        status: screeningSeg.screeningFlag === 'HIGHER PRIORITY' ? 'High Priority' : 'Watch',
+        thabatScore: screeningSeg.screeningFlag === 'HIGHER PRIORITY' ? 55 : 80,
         previousScore: 68,
         primaryDefect: 'Thermal Fatigue Micro-Cracking',
         defectDepthCm: 2.5,
@@ -88,11 +87,13 @@ export default function App() {
         lastScanDate: '2026-08-31',
         revisitCycleDays: 14,
         coordinates: screeningSeg.coordinates,
-        medianLST: screeningSeg.medianLST,
-        tempRange: screeningSeg.tempRange,
-        validPixels: screeningSeg.validPixels,
-        screeningPriority: screeningSeg.screeningPriority,
-        supportQuality: screeningSeg.supportQuality,
+        medianLST: screeningSeg.tMedian,
+        tempRange: screeningSeg.tRange,
+        validPixels: screeningSeg.validPixelCount,
+        screeningPriority: screeningSeg.screeningFlag,
+        supportQuality: screeningSeg.supportFlag,
+        whyFlagged: screeningSeg.whyFlagged,
+        priorityScore: screeningSeg.priorityScore,
         scoreBreakdown: {
           bitumenHealth: 70,
           subgradeMoistureIndex: 35,
@@ -104,10 +105,10 @@ export default function App() {
           interventionWindowDays: 21,
           estimatedCostUsd: 12000,
           preventedFailureCostUsd: 90000,
-          rationale: screeningSeg.explanation,
+          rationale: screeningSeg.whyFlagged,
           spectralSignatures: [
-            `Landsat 9 L2 Surface Temp: ${screeningSeg.medianLST}°C`,
-            `Valid pixel sample: ${screeningSeg.validPixels} pixels`
+            `Median surface temp: ${screeningSeg.tMedian.toFixed(2)} °C`,
+            `Valid pixel sample: ${screeningSeg.validPixelCount} pixels`
           ]
         },
         spectralData: [],
@@ -117,7 +118,7 @@ export default function App() {
     }
   };
 
-  // Handler for dispatching crew from segment or queue
+  // Handler for dispatching crew
   const handleDispatchCrew = (segmentOrItem: RoadSegment | InspectionQueueItem | ScreeningSegment) => {
     const code = 'code' in segmentOrItem ? segmentOrItem.code : segmentOrItem.segmentCode;
     const crewName = 'assignedCrew' in segmentOrItem && segmentOrItem.assignedCrew 
@@ -132,7 +133,43 @@ export default function App() {
       return item;
     }));
 
-    showToast(`Inspection Crew (${crewName}) dispatched to ${code}. Inspection telemetry synchronized.`);
+    showToast(`Inspection Crew (${crewName}) dispatched to segment ${code}. Telemetry synchronized.`);
+  };
+
+  // Handler for adding segment to inspection queue
+  const handleAddToQueue = (segmentOrScreening: RoadSegment | ScreeningSegment) => {
+    const code = 'code' in segmentOrScreening ? segmentOrScreening.code : (segmentOrScreening as unknown as { segmentCode: string }).segmentCode;
+    setQueue(prev => {
+      if (prev.some(item => item.segmentCode === code)) {
+        showToast(`Segment ${code} is already in the inspection queue.`);
+        return prev;
+      }
+      const newItem: InspectionQueueItem = {
+        id: `queue-${Date.now()}`,
+        segmentId: 'id' in segmentOrScreening ? segmentOrScreening.id : `seg-${code}`,
+        segmentCode: code,
+        roadName: 'name' in segmentOrScreening ? segmentOrScreening.name : segmentOrScreening.roadName,
+        corridor: 'corridor' in segmentOrScreening ? segmentOrScreening.corridor : segmentOrScreening.aoiName,
+        urgencyScore: ('priorityScore' in segmentOrScreening && typeof segmentOrScreening.priorityScore === 'number') ? segmentOrScreening.priorityScore : 2.5,
+        status: 'status' in segmentOrScreening ? segmentOrScreening.status : 'Watch',
+        priorityRank: ('urgencyRank' in segmentOrScreening && typeof segmentOrScreening.urgencyRank === 'number') 
+          ? segmentOrScreening.urgencyRank 
+          : ('rank' in segmentOrScreening && typeof segmentOrScreening.rank === 'number' ? segmentOrScreening.rank : 1),
+        detectedDefect: 'primaryDefect' in segmentOrScreening ? segmentOrScreening.primaryDefect : 'Thermal Fatigue Micro-Cracking',
+        spectralConfidence: 85,
+        assignedCrew: 'Inspection Unit Alpha',
+        scheduledDate: '2026-09-02',
+        workStatus: 'Pending Dispatch',
+        estimatedFieldHours: 3.5,
+        coordinates: 'coordinates' in segmentOrScreening ? segmentOrScreening.coordinates : { lat: 24.842, lng: 55.331 },
+        screeningPriority: 'screeningPriority' in segmentOrScreening ? segmentOrScreening.screeningPriority : 'HIGHER PRIORITY',
+        supportQuality: 'supportQuality' in segmentOrScreening ? segmentOrScreening.supportQuality : 'HIGH SUPPORT',
+        whyFlagged: 'whyFlagged' in segmentOrScreening ? segmentOrScreening.whyFlagged : 'Thermal anomaly flagged for field validation',
+        priorityScore: 'priorityScore' in segmentOrScreening ? segmentOrScreening.priorityScore : 2.5
+      };
+      showToast(`Segment ${code} added to inspection queue.`);
+      return [newItem, ...prev];
+    });
   };
 
   // Handler for opening work order modal
@@ -147,21 +184,20 @@ export default function App() {
     }
   };
 
-  // Navigation handler that clears legacy mode overrides
+  // Navigation handler
   const handleNavigateTab = (tab: NavTab) => {
     setLegacyMode(null);
-    setCurrentTab(tab);
+    // Alias normalizations
+    if (tab === 'dashboard') setCurrentTab('overview');
+    else if (tab === 'results') setCurrentTab('queue');
+    else setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Legacy mode handler (e.g. from pitch modal to wireframes or commercial)
+  // Legacy mode handler for preserving existing background views
   const handleNavigateLegacy = (mode: DeliverableMode) => {
     if (mode === 'wireframes' || mode === 'v2' || mode === 'commercial') {
       setLegacyMode(mode);
-    } else if (mode === 'v1' || mode === 'dashboard') {
-      handleNavigateTab('dashboard');
-    } else if (mode === 'queue' || mode === 'results') {
-      handleNavigateTab('results');
     } else {
       handleNavigateTab(mode as NavTab);
     }
@@ -180,7 +216,7 @@ export default function App() {
 
       {/* Main Container Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-20 xl:pb-6">
-        {/* Legacy Mode Overrides (Preserves all existing working features) */}
+        {/* Legacy Mode Overrides */}
         {legacyMode === 'v2' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200">
@@ -189,7 +225,7 @@ export default function App() {
               </span>
               <button
                 onClick={() => setLegacyMode(null)}
-                className="text-xs font-bold text-[#2E6F6E] hover:underline"
+                className="text-xs font-bold text-[#2E6F6E] hover:underline cursor-pointer"
               >
                 ← Back to Primary Dashboard
               </button>
@@ -209,13 +245,13 @@ export default function App() {
               </span>
               <button
                 onClick={() => setLegacyMode(null)}
-                className="text-xs font-bold text-[#2E6F6E] hover:underline"
+                className="text-xs font-bold text-[#2E6F6E] hover:underline cursor-pointer"
               >
                 ← Back to Primary Dashboard
               </button>
             </div>
             <WireframeView
-              onSwitchToV1={() => handleNavigateTab('dashboard')}
+              onSwitchToV1={() => handleNavigateTab('overview')}
               onSwitchToV2={() => setLegacyMode('v2')}
             />
           </div>
@@ -229,7 +265,7 @@ export default function App() {
               </span>
               <button
                 onClick={() => setLegacyMode(null)}
-                className="text-xs font-bold text-[#2E6F6E] hover:underline"
+                className="text-xs font-bold text-[#2E6F6E] hover:underline cursor-pointer"
               >
                 ← Back to Primary Dashboard
               </button>
@@ -238,11 +274,11 @@ export default function App() {
           </div>
         )}
 
-        {/* Primary iOS Application Tabs */}
+        {/* 8 Primary Sections according to Information Architecture */}
         {!legacyMode && (
           <>
-            {/* 1. Dashboard Home */}
-            {currentTab === 'dashboard' && (
+            {/* 1. Overview */}
+            {(currentTab === 'overview' || currentTab === 'dashboard') && (
               <DashboardHome
                 onNavigate={handleNavigateTab}
                 onSelectSegment={handleSelectScreeningSegment}
@@ -254,35 +290,12 @@ export default function App() {
               <StudyAreasView
                 onSelectSegment={handleSelectScreeningSegment}
                 onNavigateToThermal={() => handleNavigateTab('thermal')}
+                onDispatchInspection={handleDispatchCrew}
+                onAddToQueue={handleAddToQueue}
               />
             )}
 
-            {/* 3. Road Segments & Interactive GIS Map */}
-            {currentTab === 'segments' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(13,59,69,0.06)] space-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D3B45]/5 text-[#0D3B45] text-xs font-semibold tracking-wide border border-[#0D3B45]/10">
-                    <Layers className="w-3.5 h-3.5 text-[#2E6F6E]" />
-                    <span>Road Corridors & GIS Geometries</span>
-                  </div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0D3B45] tracking-tight">
-                    Interactive Road Segment Map
-                  </h1>
-                  <p className="text-sm text-slate-600 max-w-3xl leading-relaxed">
-                    Explore road segment boundaries, thermal anomaly overlays, and click any segment pin to examine verified Landsat 9 and Sentinel-2 telemetry.
-                  </p>
-                </div>
-
-                {/* iOS Clean Map Component */}
-                <NetworkMap
-                  segments={segments}
-                  selectedSegment={selectedSegment}
-                  onSelectSegment={(seg) => setSelectedSegment(seg)}
-                />
-              </div>
-            )}
-
-            {/* 4. Thermal Screening */}
+            {/* 3. Thermal Screening */}
             {currentTab === 'thermal' && (
               <ThermalScreeningView
                 onSelectSegment={handleSelectScreeningSegment}
@@ -290,13 +303,13 @@ export default function App() {
               />
             )}
 
-            {/* 5. Environmental Evidence */}
-            {currentTab === 'evidence' && (
-              <EnvironmentalEvidenceView />
+            {/* 4. Multispectral Context */}
+            {currentTab === 'multispectral' && (
+              <MultispectralView />
             )}
 
-            {/* 6. Results & Prioritised Inspection Queue */}
-            {currentTab === 'results' && (
+            {/* 5. Inspection Queue */}
+            {(currentTab === 'queue' || currentTab === 'results') && (
               <ResultsQueueView
                 onSelectSegment={handleSelectScreeningSegment}
                 onDispatchCrew={handleDispatchCrew}
@@ -305,39 +318,49 @@ export default function App() {
               />
             )}
 
-            {/* 7. About & Method */}
-            {currentTab === 'about' && (
+            {/* 6. Evidence */}
+            {currentTab === 'evidence' && (
+              <EnvironmentalEvidenceView />
+            )}
+
+            {/* 7. Method */}
+            {currentTab === 'method' && (
               <ValidationRoadmapView />
+            )}
+
+            {/* 8. About */}
+            {currentTab === 'about' && (
+              <AboutView />
             )}
           </>
         )}
       </main>
 
-      {/* iOS Mobile Floating Bottom Navigation Bar (Visible only on mobile / small screens) */}
-      <div className="xl:hidden fixed bottom-3 left-4 right-4 z-40 bg-white/95 backdrop-blur-lg border border-slate-200/90 rounded-3xl shadow-xl px-4 py-2 flex items-center justify-around text-[10px] font-semibold text-slate-500">
+      {/* Mobile Floating Bottom Navigation Bar (5 core shortcuts for small screens) */}
+      <div className="xl:hidden fixed bottom-3 left-4 right-4 z-40 bg-white/95 backdrop-blur-lg border border-slate-200/90 rounded-3xl shadow-xl px-3 py-2 flex items-center justify-around text-[10px] font-bold text-slate-500">
         <button
-          onClick={() => handleNavigateTab('dashboard')}
-          className={`flex flex-col items-center gap-1 p-1 transition-colors ${
-            currentTab === 'dashboard' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
+          onClick={() => handleNavigateTab('overview')}
+          className={`flex flex-col items-center gap-1 p-1 transition-colors cursor-pointer ${
+            (currentTab === 'overview' || currentTab === 'dashboard') && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
           }`}
         >
           <Home className="w-4 h-4" />
-          <span>Home</span>
+          <span>Overview</span>
         </button>
 
         <button
-          onClick={() => handleNavigateTab('segments')}
-          className={`flex flex-col items-center gap-1 p-1 transition-colors ${
-            currentTab === 'segments' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
+          onClick={() => handleNavigateTab('study-areas')}
+          className={`flex flex-col items-center gap-1 p-1 transition-colors cursor-pointer ${
+            currentTab === 'study-areas' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
           }`}
         >
           <MapPin className="w-4 h-4" />
-          <span>Map</span>
+          <span>Areas</span>
         </button>
 
         <button
           onClick={() => handleNavigateTab('thermal')}
-          className={`flex flex-col items-center gap-1 p-1 transition-colors ${
+          className={`flex flex-col items-center gap-1 p-1 transition-colors cursor-pointer ${
             currentTab === 'thermal' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
           }`}
         >
@@ -346,62 +369,65 @@ export default function App() {
         </button>
 
         <button
-          onClick={() => handleNavigateTab('results')}
-          className={`flex flex-col items-center gap-1 p-1 transition-colors relative ${
-            currentTab === 'results' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
+          onClick={() => handleNavigateTab('queue')}
+          className={`flex flex-col items-center gap-1 p-1 transition-colors relative cursor-pointer ${
+            (currentTab === 'queue' || currentTab === 'results') && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
-          <span>Results</span>
+          <span>Queue</span>
         </button>
 
         <button
           onClick={() => handleNavigateTab('about')}
-          className={`flex flex-col items-center gap-1 p-1 transition-colors ${
+          className={`flex flex-col items-center gap-1 p-1 transition-colors cursor-pointer ${
             currentTab === 'about' && !legacyMode ? 'text-[#0D3B45]' : 'hover:text-slate-800'
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          <span>Method</span>
+          <span>About</span>
         </button>
       </div>
 
-      {/* iOS Quiet Clean Footer */}
+      {/* Quiet iOS-Style Footer */}
       <footer className="border-t border-slate-200/80 bg-white py-5 px-6 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#0D3B45]">THABAT Platform</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-md bg-white p-0.5 border border-slate-200/80 flex items-center justify-center shrink-0">
+              <img 
+                src="/assets/aistudio/image_724da27a.png" 
+                alt="THABAT Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="font-extrabold text-[#0D3B45]">THABAT Platform</span>
             <span>·</span>
-            <span>AI-Powered Road Resilience</span>
-            <span>·</span>
-            <span className="text-[#2E6F6E]">Landsat 9 & Sentinel-2 Verified</span>
+            <span className="hidden sm:inline font-medium">AI-POWERED ROAD RESILIENCE</span>
+            <span className="hidden sm:inline">·</span>
+            <span className="text-[#2E6F6E] font-medium">Landsat 9 & Sentinel-2 Verified</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
             <button 
               onClick={() => setIsFeasibilityOpen(true)}
-              className="hover:text-[#0D3B45] transition-colors"
+              className="hover:text-[#0D3B45] transition-colors cursor-pointer"
             >
               Feasibility Gate
             </button>
             <button 
               onClick={() => setIsPitchOpen(true)}
-              className="hover:text-[#0D3B45] transition-colors text-[#0D3B45] font-semibold"
+              className="hover:text-[#0D3B45] transition-colors text-[#0D3B45] font-bold cursor-pointer"
             >
               Competition Pitch
             </button>
-            <button 
-              onClick={() => handleNavigateLegacy('commercial')}
-              className="hover:text-[#0D3B45] transition-colors"
+            <a 
+              href="https://github.com/DanaAlhammadi/Arab-Youth-Space-Hackathon-2026-813-Challenge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#0D3B45] transition-colors text-[#2E6F6E] font-semibold cursor-pointer"
             >
-              Unit Economics
-            </button>
-            <button 
-              onClick={() => handleNavigateLegacy('wireframes')}
-              className="hover:text-[#0D3B45] transition-colors"
-            >
-              Wireframe Specs
-            </button>
+              GitHub Repository
+            </a>
           </div>
         </div>
       </footer>
@@ -434,9 +460,9 @@ export default function App() {
         onClose={() => setWorkOrderSegment(null)}
       />
 
-      {/* iOS Floating Action Confirmation Toast */}
+      {/* Floating Action Confirmation Toast */}
       {toastMessage && (
-        <div className="fixed bottom-16 xl:bottom-6 right-6 z-50 bg-white border border-slate-200 text-[#0D3B45] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-semibold backdrop-blur-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-16 xl:bottom-6 right-6 z-50 bg-white border border-slate-200 text-[#0D3B45] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold backdrop-blur-md animate-in fade-in slide-in-from-bottom-3 duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{toastMessage}</span>
         </div>

@@ -1,0 +1,122 @@
+{
+  "type": "FeatureCollection",
+  "name": "AOI_A_saih_al_salam_D42",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "A-001",
+        "aoi_id": "AOI-A",
+        "road_name": "Saih Al Salam Street / D42",
+        "t_median": 54.60,
+        "t_range": 4.01,
+        "valid_pixel_count": 88,
+        "screening_flag": "HIGHER PRIORITY",
+        "support_flag": "HIGH SUPPORT",
+        "priority_score": 2.566,
+        "why_flagged": "Elevated median temperature and high internal thermal spread."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [55.3360, 24.8470],
+          [55.3420, 24.8510],
+          [55.3470, 24.8550]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "A-002",
+        "aoi_id": "AOI-A",
+        "road_name": "Saih Al Salam Street / D42",
+        "t_median": 54.20,
+        "t_range": 1.03,
+        "valid_pixel_count": 90,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "HIGH SUPPORT",
+        "priority_score": 0.0,
+        "why_flagged": "Consistent thermal behavior with minimal internal temperature spread."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [55.3580, 24.8650],
+          [55.3640, 24.8690],
+          [55.3700, 24.8740]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "A-003",
+        "aoi_id": "AOI-A",
+        "road_name": "Saih Al Salam Street / D42",
+        "t_median": 54.03,
+        "t_range": 1.24,
+        "valid_pixel_count": 90,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "HIGH SUPPORT",
+        "priority_score": 0.0,
+        "why_flagged": "Lowest relative thermal anomaly delta within AOI-A."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [55.3700, 24.8740],
+          [55.3750, 24.8780],
+          [55.3810, 24.8820]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "A-004",
+        "aoi_id": "AOI-A",
+        "road_name": "Saih Al Salam Street / D42",
+        "t_median": 54.23,
+        "t_range": 2.04,
+        "valid_pixel_count": 91,
+        "screening_flag": "LOWER PRIORITY",
+        "support_flag": "HIGH SUPPORT",
+        "priority_score": 0.0,
+        "why_flagged": "Thermal values remain within standard corridor baseline envelope."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [55.3470, 24.8550],
+          [55.3530, 24.8600],
+          [55.3580, 24.8650]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "segment_id": "A-005",
+        "aoi_id": "AOI-A",
+        "road_name": "Saih Al Salam Street / D42",
+        "t_median": 55.61,
+        "t_range": 3.39,
+        "valid_pixel_count": 91,
+        "screening_flag": "HIGHER PRIORITY",
+        "support_flag": "HIGH SUPPORT",
+        "priority_score": 5.572,
+        "why_flagged": "Highest relative median temperature with elevated internal thermal spread."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [55.3260, 24.8380],
+          [55.3310, 24.8420],
+          [55.3360, 24.8470]
+        ]
+      }
+    }
+  ]
+}

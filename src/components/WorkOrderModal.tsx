@@ -46,8 +46,12 @@ export const WorkOrderModal: React.FC<WorkOrderModalProps> = ({ segment, isOpen,
           {/* Document Header */}
           <div className="flex items-start justify-between border-b-2 border-[#0D3B45] pb-4">
             <div>
-              <div className="text-xl font-extrabold tracking-tight text-[#0D3B45] flex items-center gap-2">
-                <span className="bg-[#0D3B45] text-white px-2 py-0.5 rounded font-black text-sm">ث</span>
+              <div className="text-xl font-extrabold tracking-tight text-[#0D3B45] flex items-center gap-2.5">
+                <img 
+                  src="/assets/aistudio/image_724da27a.png" 
+                  alt="THABAT Logo" 
+                  className="w-7 h-7 object-contain"
+                />
                 <span>THABAT ROAD RESILIENCE</span>
               </div>
               <div className="text-[11px] text-slate-600 mt-1">
